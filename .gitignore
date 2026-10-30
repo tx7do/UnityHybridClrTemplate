@@ -73,6 +73,8 @@ mono_crash.*.json
 # Addressables 构建产物（配置文件 AssetGroups/*.asset 入版本库，构建产物不入库）
 /Assets/AddressableAssetsData/ContentState/
 /Assets/AddressableAssetsData/builds/
+# 2.x 起内容更新状态文件写入按平台命名的子目录，属构建产物
+/Assets/AddressableAssetsData/*/addressables_content_state.bin*
 /Assets/AddressableAssetsData/AssetBundleManifest.asset
 # 远程构建输出目录（ServerData，由打包脚本生成）
 /ServerData/
