@@ -217,9 +217,9 @@ namespace EditorTools
                     "请确认构建步骤成功执行。");
             }
 
-            // 目标：HybridCLRData/ServerOutput/Addressables/[短平台名]/
-            // 与 serve_hotupdate.py 的 /Addressables/[平台]/ 布局保持一致
-            var destDir = Path.Combine(ServerAddressablesDir, GetCurrentPlatformName());
+            // 目标：HybridCLRData/ServerOutput/Addressables/[BuildTarget]/
+            // 目录名必须与 Profile 的 Remote.LoadPath 中 [BuildTarget] 的展开一致
+            var destDir = Path.Combine(ServerAddressablesDir, buildTargetDirName);
 
             // 清空目标目录
             if (Directory.Exists(destDir))
@@ -265,21 +265,5 @@ namespace EditorTools
             }
         }
 
-        /// <summary>
-        /// 获取当前平台名称（与 Addressables Profile 的 [BuildTarget] 对应）。
-        /// </summary>
-        private static string GetCurrentPlatformName()
-        {
-            return EditorUserBuildSettings.activeBuildTarget switch
-            {
-                BuildTarget.StandaloneWindows or BuildTarget.StandaloneWindows64 => "Windows",
-                BuildTarget.StandaloneOSX => "OSX",
-                BuildTarget.StandaloneLinux64 => "Linux",
-                BuildTarget.Android => "Android",
-                BuildTarget.iOS => "iOS",
-                BuildTarget.WebGL => "WebGL",
-                _ => EditorUserBuildSettings.activeBuildTarget.ToString()
-            };
-        }
     }
 }

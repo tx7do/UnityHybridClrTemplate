@@ -78,7 +78,7 @@ MonoBehaviour:
       - m_Id: 9843e592d2d526842874ef4b4ea9134b
         m_Value: '[UnityEngine.AddressableAssets.Addressables.BuildPath]/[BuildTarget]'
       - m_Id: c0f30d8faf3ba4945bd49f94f34f1183
-        m_Value: 'http://localhost:8080/Addressables/[BuildTarget]'
+        m_Value: 'http://127.0.0.1:8080/Addressables/[BuildTarget]'
       - m_Id: ef09a1815fce3cb4880d85c87463fc1c
         m_Value: '{UnityEngine.AddressableAssets.Addressables.RuntimePath}/[BuildTarget]'
     m_ProfileEntryNames:

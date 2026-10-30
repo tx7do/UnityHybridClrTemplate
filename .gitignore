@@ -124,3 +124,9 @@ Desktop.ini
 # Python 缓存
 __pycache__/
 *.pyc
+
+# HybridCLR v9 构建临时目录
+/HybridCLRData/StrippedAOTDllsTempProj/
+# Addressables 出包时自动生成的裁剪声明（每次构建重新生成）
+/Assets/AddressableAssetsData/link.xml
+/Assets/AddressableAssetsData/link.xml.meta

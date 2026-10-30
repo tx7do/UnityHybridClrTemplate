@@ -20,9 +20,11 @@ namespace Main.HybridCLR
     {
         /// <summary>
         /// 热更服务器根地址。
-        /// 本地测试默认 http://localhost:8080，上线时改为正式 CDN 地址即可。
+        /// 本地测试默认 http://127.0.0.1:8080，上线时改为正式 CDN 地址即可。
+        /// 用 127.0.0.1 而非 localhost：localhost 可能解析到 IPv6(::1)，
+        /// 且部分环境会把它交给系统代理处理。
         /// </summary>
-        private const string ServerBaseUrl = "http://localhost:8080";
+        private const string ServerBaseUrl = "http://127.0.0.1:8080";
 
         /// <summary>远程版本清单 URL</summary>
         private static string RemoteManifestUrl => $"{ServerBaseUrl}/manifest.json";
@@ -39,8 +41,10 @@ namespace Main.HybridCLR
         /// <summary>本地已保存的 manifest 路径</summary>
         private static string LocalManifestPath => Path.Combine(LocalDataDir, "manifest.json");
 
-        // 共享 HttpClient，避免每次请求创建新实例
-        private static readonly HttpClient HttpClient = new() { Timeout = TimeSpan.FromSeconds(30) };
+        // 共享 HttpClient，避免每次请求创建新实例。
+        // UseProxy=false：热更下载不走系统代理，避免本地测试时被 Clash 等代理劫持 localhost
+        private static readonly HttpClient HttpClient =
+            new(new HttpClientHandler { UseProxy = false }) { Timeout = TimeSpan.FromSeconds(30) };
 
         /// <summary>
         /// 获取远程版本清单。

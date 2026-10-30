@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
-using HybridCLR.Editor.Commands;
+using HybridCLR.Commands;
 using Main;
 using UnityEditor;
 using UnityEngine;
@@ -30,13 +30,9 @@ namespace EditorTools
 
         // ── 路径常量 ──────────────────────────────────────────────
 
-        /// <summary>HybridCLR 编译热更 DLL 的输出目录</summary>
+        /// <summary>HybridCLR 编译热更 DLL 的输出目录（含平台子目录）</summary>
         private static string HotUpdateDllSourceDir =>
-            Path.Combine(Directory.GetCurrentDirectory(), "HybridCLRData", "HotUpdateDlls");
-
-        /// <summary>HybridCLR 裁剪后 AOT DLL 的输出根目录</summary>
-        private static string AOTDllSourceRootDir =>
-            Path.Combine(Directory.GetCurrentDirectory(), "HybridCLRData", "AssembliesPostIl2CppStrip");
+            HybridCLR.SettingsUtil.GetHotUpdateDllsOutputDirByTarget(EditorUserBuildSettings.activeBuildTarget);
 
         /// <summary>StreamingAssets/AOT 目录（随主包打入）</summary>
         private static string StreamingAOTDir =>
@@ -135,8 +131,9 @@ namespace EditorTools
         [MenuItem(MenuRoot + "4. Copy AOT to StreamingAssets")]
         public static void CopyAOTToStreamingAssets()
         {
-            var platformDir = GetPlatformSubDir();
-            var aotSourceDir = Path.Combine(AOTDllSourceRootDir, platformDir);
+            // 裁剪后 AOT DLL 输出在按平台命名的子目录（由 HybridCLR 包维护）
+            var aotSourceDir = HybridCLR.SettingsUtil.GetAssembliesPostIl2CppStripDir(
+                EditorUserBuildSettings.activeBuildTarget);
 
             if (!Directory.Exists(aotSourceDir))
             {
@@ -262,24 +259,6 @@ namespace EditorTools
         }
 
         // ── 辅助方法 ──────────────────────────────────────────────
-
-        /// <summary>
-        /// 获取当前 BuildTarget 对应的 AOT 子目录名。
-        /// </summary>
-        private static string GetPlatformSubDir()
-        {
-            var target = EditorUserBuildSettings.activeBuildTarget;
-            return target switch
-            {
-                BuildTarget.StandaloneWindows or BuildTarget.StandaloneWindows64 => "Windows64",
-                BuildTarget.StandaloneOSX => "OSX",
-                BuildTarget.StandaloneLinux64 => "Linux64",
-                BuildTarget.Android => "Android",
-                BuildTarget.iOS => "IOS",
-                BuildTarget.WebGL => "WebGL",
-                _ => target.ToString()
-            };
-        }
 
         /// <summary>
         /// 计算字节数组的 MD5（16 进制小写）。

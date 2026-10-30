@@ -15,7 +15,7 @@ namespace EditorTools
     /// 1. 创建 AddressableAssetSettings（如果不存在）
     /// 2. 配置 Profile 的 Remote.BuildPath 和 Remote.LoadPath
     ///    - BuildPath: ServerData/[BuildTarget]
-    ///    - LoadPath:  http://localhost:8080/Addressables/[BuildTarget]
+    ///    - LoadPath:  http://127.0.0.1:8080/Addressables/[BuildTarget]
     /// 3. 确保 Default Group 存在并配置为远程打包
     ///
     /// 菜单：HotUpdate/Addressables/0. Setup Addressables Settings
@@ -24,8 +24,9 @@ namespace EditorTools
     {
         private const string MenuRoot = "HotUpdate/Addressables/";
 
-        /// <summary>远程加载根 URL（与 serve_hotupdate.py 配合）</summary>
-        private const string RemoteLoadPathValue = "http://localhost:8080/Addressables/[BuildTarget]";
+        /// <summary>远程加载根 URL（与 serve_hotupdate.py 配合）。
+        /// 用 127.0.0.1 而非 localhost，避免解析到 IPv6 或被系统代理接管</summary>
+        private const string RemoteLoadPathValue = "http://127.0.0.1:8080/Addressables/[BuildTarget]";
 
         /// <summary>远程构建输出目录</summary>
         private const string RemoteBuildPathValue = "ServerData/[BuildTarget]";

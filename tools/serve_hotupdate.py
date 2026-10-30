@@ -4,7 +4,7 @@
 
 同时 serve 代码热更新和资源热更新(Addressables)的内容：
 
-  http://localhost:8080/
+  http://127.0.0.1:8080/
     ├── manifest.json          ← 代码热更版本清单
     ├── HotUpdate.dll          ← 代码热更 DLL
     └── Addressables/
@@ -18,9 +18,9 @@
     python3 tools/serve_hotupdate.py            # 默认端口 8080
     python3 tools/serve_hotupdate.py 9000       # 指定端口
 
-运行时客户端默认连接 http://localhost:8080。
+运行时客户端默认连接 http://127.0.0.1:8080。
 Addressables Profile 的 Remote.LoadPath 应配置为:
-    http://localhost:8080/Addressables/[BuildTarget]
+    http://127.0.0.1:8080/Addressables/[BuildTarget]
 """
 
 import sys
@@ -45,7 +45,8 @@ def main():
         print("  2. HotUpdate/Addressables/2. Build Addressables (资源打包)")
         sys.exit(1)
 
-    os.chdir(serve_dir)
+    # 不 chdir 进服务目录：CORSHandler 已用 directory= 指定根目录。
+    # chdir 会让目录句柄被占用，导致打包脚本无法删除重建 ServerOutput。
 
     # 添加 CORS 头，方便 UnityWebRequest / WebGL 跨域访问
     class CORSHandler(SimpleHTTPRequestHandler):

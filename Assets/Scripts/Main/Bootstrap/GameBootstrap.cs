@@ -99,7 +99,9 @@ namespace Main.Bootstrap
 
             // ④ 初始化 Addressables
             Log("④ 初始化 Addressables");
-            var initHandle = Addressables.InitializeAsync();
+            // autoReleaseHandle 必须为 false：若 catalog 已缓存，初始化会在协程恢复前完成，
+            // 自动释放后的句柄再读 Status 会抛 invalid operation handle
+            var initHandle = Addressables.InitializeAsync(autoReleaseHandle: false);
             yield return initHandle;
 
             if (initHandle.Status != AsyncOperationStatus.Succeeded)
@@ -117,6 +119,8 @@ namespace Main.Bootstrap
                     yield return CheckAndDownloadResourceUpdates();
                 }
             }
+
+            Addressables.Release(initHandle);
 
             // ⑥ 加载游戏场景
             Log($"⑥ 加载游戏场景: {initialSceneAddress}");
@@ -154,40 +158,26 @@ namespace Main.Bootstrap
 
             Addressables.Release(checkHandle);
 
-            // 检查需要下载的资源大小
-            var sizeHandle = Addressables.GetDownloadSizeAsync("*");
-            yield return sizeHandle;
-
-            if (sizeHandle.Status == AsyncOperationStatus.Succeeded && sizeHandle.Result > 0)
+            // 预下载全部远程依赖；Addressables 2.x 无 "*" 通配键，场景/资源加载会按需拉取，
+            // 因此预下载失败不影响流程
+            Log("尝试预下载资源更新");
+            var downloadHandle = Addressables.DownloadDependenciesAsync("*", Addressables.MergeMode.Union);
+            while (!downloadHandle.IsDone)
             {
-                var sizeMB = sizeHandle.Result / 1024f / 1024f;
-                Log($"需要下载 {sizeMB:F2} MB 资源");
+                OnDownloadProgress(downloadHandle.PercentComplete);
+                yield return null;
+            }
 
-                // 下载所有依赖资源
-                var downloadHandle = Addressables.DownloadDependenciesAsync("*", Addressables.MergeMode.Union);
-                while (!downloadHandle.IsDone)
-                {
-                    OnDownloadProgress(downloadHandle.PercentComplete);
-                    yield return null;
-                }
-
-                if (downloadHandle.Status == AsyncOperationStatus.Succeeded)
-                {
-                    Log("资源下载完成");
-                }
-                else
-                {
-                    Log($"资源下载失败: {downloadHandle.OperationException?.Message}");
-                }
-
-                Addressables.Release(downloadHandle);
+            if (downloadHandle.Status == AsyncOperationStatus.Succeeded)
+            {
+                Log("资源预下载完成");
             }
             else
             {
-                Log("无需下载资源（已是最新）");
+                Log($"资源预下载跳过（按需加载）: {downloadHandle.OperationException?.Message}");
             }
 
-            Addressables.Release(sizeHandle);
+            Addressables.Release(downloadHandle);
         }
 
         /// <summary>

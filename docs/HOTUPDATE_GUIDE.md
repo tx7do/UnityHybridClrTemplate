@@ -37,14 +37,13 @@
 
 ## 首次环境准备（一次性）
 
-### 1. 初始化 HybridCLR 子模块
+### 1. 安装 HybridCLR
 
-```bash
-cd <项目根目录>
-git submodule update --init --recursive
-```
+打开 Unity 后执行菜单 `HybridCLR/Installer...` → Install。
 
-> 也可在 Unity 中通过 `HybridCLR/Installer` 安装。
+安装器会自动下载与本机 Unity 版本匹配的 hybridclr/il2cpp_plus 源码并安装到本地
+（v9 起不再需要 git 子模块）。**HybridCLR 版本必须与 Unity 版本严格匹配**，
+否则真机会在热更初始化阶段崩溃，详见 README 的「HybridCLR 版本说明」。
 
 ### 2. 打开 Unity，等待包加载
 
@@ -70,7 +69,7 @@ HotUpdate / Addressables / 0. Setup Addressables Settings
 
 这会自动：
 - 创建 `AddressableAssetSettings`
-- 配置 Profile（Remote.LoadPath = `http://localhost:8080/Addressables/[BuildTarget]`）
+- 配置 Profile（Remote.LoadPath = `http://127.0.0.1:8080/Addressables/[BuildTarget]`）
 - 创建默认 Group 并配置为远程打包
 
 ---
@@ -229,7 +228,7 @@ Hello, World
 | 变量 | 值 | 说明 |
 |------|-----|------|
 | `Remote.BuildPath` | `ServerData/[BuildTarget]` | 构建输出目录 |
-| `Remote.LoadPath` | `http://localhost:8080/Addressables/[BuildTarget]` | 运行时加载URL |
+| `Remote.LoadPath` | `http://127.0.0.1:8080/Addressables/[BuildTarget]` | 运行时加载URL |
 
 ### Addressable 地址映射
 
