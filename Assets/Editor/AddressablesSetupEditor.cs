@@ -230,6 +230,9 @@ namespace EditorTools
             bundleSchema.LoadPath.SetVariableByName(settings, RemoteLoadPathVar);
             bundleSchema.BundleMode = BundledAssetGroupSchema.BundlePackingMode.PackTogether;
             bundleSchema.Compression = BundledAssetGroupSchema.BundleCompressionMode.LZ4;
+            // Schema 是 Group 资产的子资产，必须显式标脏，否则修改不会序列化落盘（批量模式下必现）
+            EditorUtility.SetDirty(bundleSchema);
+            EditorUtility.SetDirty(group);
         }
     }
 }

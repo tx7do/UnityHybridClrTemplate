@@ -50,7 +50,7 @@ git submodule update --init --recursive
 
 确认以下包已导入：
 - `HybridCLR`（代码热更）
-- `Addressables 1.22.3`（资源热更）
+- `Addressables 2.9.1`（资源热更）
 
 ### 3. 安装 HybridCLR
 

@@ -206,8 +206,9 @@ namespace EditorTools
         /// </summary>
         private static void CopyBuildOutputToServer()
         {
-            var buildTarget = GetCurrentPlatformName();
-            var sourceDir = Path.Combine(Directory.GetCurrentDirectory(), "ServerData", buildTarget);
+            // Addressables Profile 的 [BuildTarget] 展开为完整平台名（如 StandaloneWindows64）
+            var buildTargetDirName = EditorUserBuildSettings.activeBuildTarget.ToString();
+            var sourceDir = Path.Combine(Directory.GetCurrentDirectory(), "ServerData", buildTargetDirName);
 
             if (!Directory.Exists(sourceDir))
             {
@@ -216,8 +217,9 @@ namespace EditorTools
                     "请确认构建步骤成功执行。");
             }
 
-            // 目标：HybridCLRData/ServerOutput/Addressables/[BuildTarget]/
-            var destDir = Path.Combine(ServerAddressablesDir, buildTarget);
+            // 目标：HybridCLRData/ServerOutput/Addressables/[短平台名]/
+            // 与 serve_hotupdate.py 的 /Addressables/[平台]/ 布局保持一致
+            var destDir = Path.Combine(ServerAddressablesDir, GetCurrentPlatformName());
 
             // 清空目标目录
             if (Directory.Exists(destDir))
