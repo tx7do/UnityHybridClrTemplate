@@ -64,6 +64,9 @@ namespace Main.Games
         /// <summary>入口静态方法名。</summary>
         public string entryMethod;
 
+        /// <summary>退出静态方法名（可选，默认 "Exit"）。返回大厅时调用，方法不存在则跳过。</summary>
+        public string exitMethod;
+
         /// <summary>入口场景的 Addressable 地址。</summary>
         public string scene;
 

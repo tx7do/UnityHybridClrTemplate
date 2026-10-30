@@ -292,6 +292,7 @@ namespace EditorTools
             public string entryAssembly;
             public string entryClass;
             public string entryMethod;
+            public string exitMethod;
             public string scene;
             public string label;
         }
@@ -414,6 +415,7 @@ namespace EditorTools
                     entryAssembly = def.entryAssembly,
                     entryClass = def.entryClass,
                     entryMethod = def.entryMethod,
+                    exitMethod = def.exitMethod,
                     scene = def.scene,
                     label = def.label,
                     dlls = new List<DllEntry>()

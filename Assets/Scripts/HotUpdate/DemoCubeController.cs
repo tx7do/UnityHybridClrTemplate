@@ -43,6 +43,13 @@ namespace HotUpdate
             // 上下浮动
             var yOffset = Mathf.Sin(Time.time * floatSpeed) * floatAmplitude;
             transform.position = _startPos + new Vector3(0f, yOffset, 0f);
+
+            // 演示：热更代码通过 Common 契约请求返回大厅（矩阵形态下回到游戏列表）
+            if (Input.GetKeyDown(KeyCode.Escape))
+            {
+                Debug.Log("[DemoCube] 按下 Esc，请求返回大厅");
+                Common.GameModule.GameRuntime.RequestReturnToHall();
+            }
         }
     }
 }

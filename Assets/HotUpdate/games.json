@@ -9,6 +9,7 @@
             "entryAssembly": "HotUpdate",
             "entryClass": "HotUpdate.Hello",
             "entryMethod": "Run",
+            "exitMethod": "Exit",
             "scene": "games/demo/main",
             "label": "games/demo"
         }

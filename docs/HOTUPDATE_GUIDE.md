@@ -80,6 +80,29 @@
 | 资源预下载失败 | 记录日志，场景加载时按需拉取 |
 | 场景加载失败 | 阻断 + 重试按钮 |
 
+### 退出子游戏、返回大厅
+
+容器对象是 `DontDestroyOnLoad` 的：子游戏场景以 Single 模式加载后 Bootstrap 场景被卸载，
+但容器（GameBootstrap / PatchUI / GameHallUI）继续存活，因此游戏运行期间仍能响应返回请求。
+
+**热更侧的调用方式**（`Common` 已被 HotUpdate 程序集引用）：
+
+```csharp
+using Common.GameModule;
+
+GameRuntime.RequestReturnToHall();   // 返回 false = 没有容器接管
+```
+
+**容器侧的处理顺序**（`GameBootstrap.ReturnToHallRoutine`）：
+
+1. 调用该游戏的退出方法（`games.json` 的 `exitMethod`，缺省约定 `"Exit"`；未声明则跳过）
+2. 卸载该游戏场景并释放句柄
+   - Unity 不允许卸载「最后一个已加载场景」：先 `SceneManager.CreateScene` 建空场景承托再卸载
+   - `Addressables.UnloadSceneAsync` 的 `autoReleaseHandle` **默认是 true**，不要对返回句柄再 Release
+3. 重跑容器流程：矩阵形态回到大厅（状态刷新），单游戏形态重新进入该游戏
+
+示例：`DemoCubeController` 里按 Esc 触发返回；`Hello.Exit()` 演示退出方法约定。
+
 ---
 
 ## 首次环境准备（一次性）
@@ -275,6 +298,34 @@ Unity -batchmode -nographics -projectPath <项目> -runTests -testPlatform PlayM
 
 > 注意：PlayMode 测试的程序集必须用 `defineConstraints: ["UNITY_INCLUDE_TESTS"]`
 > （而不是限定 Editor 平台），否则会被 HybridCLR 的 player 目标裁剪编译拦截，或测试发现不到。
+
+## IL2CPP 真机路径验证（重要）
+
+Editor 与 PlayMode 测试都跑在 Mono 下，且 `HotUpdateLoader.EnsureLoaded` 在 `#if UNITY_EDITOR`
+下直接放行（编辑器里程序集由 Unity 自动加载）。因此 **player 侧的"读已下载 DLL → 去重 →
+Assembly.Load(bytes)"这条路径只能靠出包验证**，HybridCLR 的 AOT 元数据机制也只在 IL2CPP 下生效。
+
+出 Windows IL2CPP 开发包并跑一遍：
+
+```
+# 1. 打包（代码 + 资源，已在上面步骤完成）
+# 2. 出包（Standalone 的 scriptingBackend 必须是 IL2CPP）
+Unity -batchmode -quit -nographics -projectPath <项目> ^
+      -executeMethod <你的出包脚本方法> -logFile build.log
+
+# 3. 启动本地服务器后运行 exe，日志在
+#    %USERPROFILE%\AppData\LocalLow\<Company>\<Product>\Player.log
+```
+
+玩家侧日志里应出现这几条（Editor 下不会有的）：
+
+```
+[HotUpdateLoader] 读取已下载的 DLL: ...\Data\games\demo\dlls\HotUpdate.dll
+[HotUpdateLoader] 已加载程序集: HotUpdate
+Hello, World
+```
+
+Android 额外验证 StreamingAssets 读取路径（AOT 元数据 + 内置 DLL 走 UnityWebRequest）。
 
 ---
 

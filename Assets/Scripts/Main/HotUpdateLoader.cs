@@ -151,6 +151,52 @@ namespace Main
             }
         }
 
+        /// <summary>
+        /// 调用游戏的退出静态方法（默认方法名 "Exit"；不声明则静默跳过）。
+        /// 返回大厅前调用，用于让游戏自己释放运行期资源。
+        /// </summary>
+        public static void InvokeExit(GameInfo game, Action<string> log = null)
+        {
+            var l = log ?? Debug.Log;
+            if (game == null || string.IsNullOrEmpty(game.entryClass))
+            {
+                return;
+            }
+
+            var methodName = string.IsNullOrEmpty(game.exitMethod) ? "Exit" : game.exitMethod;
+
+            var all = AppDomain.CurrentDomain.GetAssemblies();
+            foreach (var assembly in all)
+            {
+                var type = assembly.GetType(game.entryClass);
+                if (type == null)
+                {
+                    continue;
+                }
+
+                var method = type.GetMethod(methodName, BindingFlags.Public | BindingFlags.Static);
+                if (method == null)
+                {
+                    l($"[HotUpdateLoader] {game.entryClass} 未声明 {methodName}，跳过退出处理");
+                    return;
+                }
+
+                try
+                {
+                    method.Invoke(null, null);
+                    l($"[HotUpdateLoader] 已执行 {game.entryClass}.{methodName}");
+                }
+                catch (Exception e)
+                {
+                    l($"[HotUpdateLoader] 退出方法执行异常: {e}");
+                }
+
+                return;
+            }
+
+            l($"[HotUpdateLoader] 未找到入口类 {game.entryClass}，跳过退出处理");
+        }
+
         // ── 文件读取 ──────────────────────────────────────────────
 
         /// <summary>

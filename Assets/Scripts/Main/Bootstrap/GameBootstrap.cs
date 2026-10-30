@@ -1,4 +1,5 @@
 using System.Collections;
+using Common.GameModule;
 using Common.Utilities;
 using Main.Config;
 using Main.Games;
@@ -7,6 +8,8 @@ using Main.UI;
 using UnityEngine;
 using UnityEngine.AddressableAssets;
 using UnityEngine.ResourceManagement.AsyncOperations;
+using UnityEngine.ResourceManagement.ResourceProviders;
+using UnityEngine.SceneManagement;
 
 namespace Main.Bootstrap
 {
@@ -47,6 +50,9 @@ namespace Main.Bootstrap
         private GameRegistry _builtinRegistry;
         private GameInfo _currentGame;
         private Coroutine _flowCoroutine;
+        private AsyncOperationHandle<SceneInstance> _sceneHandle;
+        private bool _returning;
+        private System.Action _returnToHallHandler;
 
         private static void Log(string msg)
         {
@@ -57,6 +63,12 @@ namespace Main.Bootstrap
         {
             Application.targetFrameRate = 60;
 
+            // 容器必须跨场景存活：子游戏场景以 Single 模式加载会销毁 Bootstrap 场景，
+            // 只有 DontDestroyOnLoad 才能让游戏内调用 GameRuntime.RequestReturnToHall 得到响应
+            DontDestroyOnLoad(gameObject);
+            _returnToHallHandler = ReturnToHall;
+            GameRuntime.ReturnToHallHandler = _returnToHallHandler;
+
             _config = HotUpdateConfig.Load();
             GameUpdateManager.Configure(_config);
 
@@ -65,6 +77,15 @@ namespace Main.Bootstrap
 
             Log($"启动容器流程（服务器: {_config.ServerBaseUrl}）");
             _flowCoroutine = StartCoroutine(RunFlow());
+        }
+
+        private void OnDestroy()
+        {
+            // 只清理自己注册的处理器，避免残留已销毁对象的引用
+            if (GameRuntime.ReturnToHallHandler == _returnToHallHandler)
+            {
+                GameRuntime.ReturnToHallHandler = null;
+            }
         }
 
         // ── 启动流程 ──────────────────────────────────────────────
@@ -291,10 +312,74 @@ namespace Main.Bootstrap
                 yield break;
             }
 
+            // 保存场景句柄，返回大厅时用于正确卸载（Single 模式下 Bootstrap 场景已卸载，
+            // 但容器对象因 DontDestroyOnLoad 存活）
+            _sceneHandle = loadHandle;
             _ui.Hide();
             Log($"[{remoteGame.id}] 进入完成: {effective.scene}");
-            // Single 模式加载会卸载 Bootstrap 场景，本组件与大厅/补丁 UI 一并销毁；
-            // 退出子游戏回大厅 = 重新加载 Bootstrap 场景（流程会再次走到大厅分支）
+        }
+
+        /// <summary>
+        /// 返回大厅（供热更代码经 <see cref="GameRuntime.RequestReturnToHall"/> 触发）。
+        /// 执行该游戏的退出方法 → 卸载其场景 → 重跑容器流程
+        /// （矩阵形态回到大厅，单游戏形态重新进入该游戏）。
+        /// </summary>
+        public void ReturnToHall()
+        {
+            if (_returning || _currentGame == null)
+            {
+                return;
+            }
+
+            _returning = true;
+            if (_flowCoroutine != null)
+            {
+                StopCoroutine(_flowCoroutine);
+            }
+
+            _flowCoroutine = StartCoroutine(ReturnToHallRoutine());
+        }
+
+        private IEnumerator ReturnToHallRoutine()
+        {
+            var game = _currentGame;
+            Log($"[{game.id}] 收到返回大厅请求");
+            HotUpdateLoader.InvokeExit(game, Log);
+
+            if (_sceneHandle.IsValid())
+            {
+                // Unity 不允许卸载"最后一个已加载场景"：先建空场景承托再卸载子游戏场景
+                // （容器对象是 DontDestroyOnLoad，不依赖任何场景）
+                var placeholder = SceneManager.CreateScene("__HallPlaceholder");
+                SceneManager.SetActiveScene(placeholder);
+
+                // autoReleaseHandle 必须 false：默认 true 会在完成时自动释放，
+                // 之后再读到已释放的句柄会抛 invalid operation handle
+                var unloadHandle = Addressables.UnloadSceneAsync(_sceneHandle, autoReleaseHandle: false);
+                while (!unloadHandle.IsDone)
+                {
+                    yield return null;
+                }
+
+                if (unloadHandle.Status == AsyncOperationStatus.Succeeded)
+                {
+                    Log($"[{game.id}] 场景已卸载");
+                }
+                else
+                {
+                    Log($"[{game.id}] 场景卸载失败: {unloadHandle.OperationException?.Message}");
+                }
+
+                Addressables.Release(unloadHandle);
+                Addressables.Release(_sceneHandle);
+                _sceneHandle = default;
+            }
+
+            _currentGame = null;
+            _returning = false;
+            _ui.Show();
+            Log("返回大厅，重新执行容器流程");
+            _flowCoroutine = StartCoroutine(RunFlow());
         }
 
         private void FailRetryable(string message)
@@ -309,6 +394,13 @@ namespace Main.Bootstrap
         private void ShowHall(GameRegistry registry)
         {
             _ui.Hide();
+
+            // 从游戏返回大厅会重复进入这里：先销毁旧大厅，重建以刷新各游戏状态
+            if (_hall != null)
+            {
+                Destroy(_hall.gameObject);
+            }
+
             _hall = GameHallUI.Create(transform, registry, _builtinRegistry, game =>
             {
                 _hall?.Hide(); // 收起大厅，避免补丁面板下方按钮仍可点击

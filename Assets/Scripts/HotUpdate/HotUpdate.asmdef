@@ -2,6 +2,7 @@
     "name": "HotUpdate",
     "rootNamespace": "",
     "references": [
+        "Common",
         "Unity.Addressables",
         "Unity.ResourceManager"
     ],
