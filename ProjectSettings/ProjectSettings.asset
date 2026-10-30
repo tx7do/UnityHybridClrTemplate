@@ -13,7 +13,7 @@ PlayerSettings:
   useOnDemandResources: 0
   accelerometerFrequency: 60
   companyName: DefaultCompany
-  productName: TestHybridCLR
+  productName: UnityHybridClrTemplate
   defaultCursor: {fileID: 0}
   cursorHotspot: {x: 0, y: 0}
   m_SplashScreenBackgroundColor: {r: 0.13725491, g: 0.12156863, b: 0.1254902, a: 1}
@@ -643,14 +643,14 @@ PlayerSettings:
   apiCompatibilityLevelPerPlatform: {}
   m_RenderingPath: 1
   m_MobileRenderingPath: 1
-  metroPackageName: TestHybridCLR
+  metroPackageName: UnityHybridClrTemplate
   metroPackageVersion: 
   metroCertificatePath: 
   metroCertificatePassword: 
   metroCertificateSubject: 
   metroCertificateIssuer: 
   metroCertificateNotAfter: 0000000000000000
-  metroApplicationDescription: TestHybridCLR
+  metroApplicationDescription: UnityHybridClrTemplate
   wsaImages: {}
   metroTileShortName: 
   metroTileShowName: 0
@@ -722,7 +722,7 @@ PlayerSettings:
   cloudProjectId: 896709e5-0ce8-46b5-b828-07e0b1a25169
   framebufferDepthMemorylessMode: 0
   qualitySettingsNames: []
-  projectName: TestHybridCLR
+  projectName: UnityHybridClrTemplate
   organizationId: tx7do
   cloudEnabled: 0
   legacyClampBlendShapeWeights: 0

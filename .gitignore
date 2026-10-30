@@ -51,6 +51,9 @@ mono_crash.*.json
 /hybridclr_il2cpp_output/
 /hybridclr_il2cpp_output_*/
 /HybridCLRData/HotUpdateDlls
+/HybridCLRData/AssembliesPostIl2CppStrip
+# HybridCLR Installer 在本机生成的 il2cpp 环境（约 800MB，新机器重新 Install 即可）
+/HybridCLRData/LocalIl2CppData-*/
 # 服务器输出目录（打包产物，不入版本库）
 /HybridCLRData/ServerOutput/
 
