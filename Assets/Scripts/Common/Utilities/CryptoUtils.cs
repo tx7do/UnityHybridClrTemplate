@@ -54,6 +54,21 @@ namespace Common.Utilities
         }
 
         /// <summary>
+        /// 计算字节数组的MD5值（32位16进制小写）
+        /// </summary>
+        public static string MD5Bytes(byte[] data)
+        {
+            using var md5 = System.Security.Cryptography.MD5.Create();
+            var sb = new StringBuilder();
+            foreach (var b in md5.ComputeHash(data))
+            {
+                sb.Append(b.ToString("x2"));
+            }
+
+            return sb.ToString();
+        }
+
+        /// <summary>
         /// 将字符串编码为Base64格式
         /// </summary>
         /// <param name="input">输入的字符串</param>

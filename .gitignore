@@ -61,11 +61,14 @@ mono_crash.*.json
 /Assets/Plugins/HybridCLR/AOT/
 /Assets/Plugins/HybridCLR/HotUpdateDlls/
 
-# StreamingAssets 下打包拷贝的 AOT 元数据和热更 DLL（由打包脚本生成）
+# StreamingAssets 下打包拷贝的 AOT 元数据、热更 DLL 与内置注册表（由打包脚本生成）
 /Assets/StreamingAssets/AOT/
 /Assets/StreamingAssets/AOT.meta
-/Assets/StreamingAssets/HotUpdate.dll
-/Assets/StreamingAssets/HotUpdate.dll.meta
+# 通配所有热更 DLL（多游戏模式下每个子游戏各有自己的 DLL）
+/Assets/StreamingAssets/*.dll
+/Assets/StreamingAssets/*.dll.meta
+/Assets/StreamingAssets/games.json
+/Assets/StreamingAssets/games.json.meta
 
 # =====================================
 # 常见第三方插件忽略规则

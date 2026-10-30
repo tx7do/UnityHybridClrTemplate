@@ -1,0 +1,16 @@
+{
+    "games": [
+        {
+            "id": "demo",
+            "name": "Demo 小游戏",
+            "dlls": [
+                "HotUpdate.dll"
+            ],
+            "entryAssembly": "HotUpdate",
+            "entryClass": "HotUpdate.Hello",
+            "entryMethod": "Run",
+            "scene": "games/demo/main",
+            "label": "games/demo"
+        }
+    ]
+}

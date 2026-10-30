@@ -14,8 +14,8 @@ namespace Main
     /// </summary>
     public class DemoSceneLoader : MonoBehaviour
     {
-        /// <summary>DemoCube 的 Addressable 地址</summary>
-        private const string DemoCubeAddress = "DemoCube";
+        /// <summary>DemoCube 的 Addressable 地址（与 Assets/HotUpdate/games.json 中 demo 的资源对应）</summary>
+        private const string DemoCubeAddress = "games/demo/cube";
 
         private static void Log(string msg)
         {

@@ -11,9 +11,11 @@ namespace EditorTools
     /// Addressables 资源打包工具。
     ///
     /// 自动完成以下操作：
-    /// 1. 将 DemoCube 预制体和 MainMenu 场景标记为 Addressable
-    ///    - DemoCube → 地址 "DemoCube"
-    ///    - MainMenu → 地址 "MainMenu"
+    /// 1. 将 DemoCube 预制体和 MainMenu 场景标记为 Addressable 并打上 demo 游戏的 label
+    ///    - DemoCube → 地址 "games/demo/cube"，label "games/demo"
+    ///    - MainMenu → 地址 "games/demo/main"，label "games/demo"
+    ///    （地址与 label 与 Assets/HotUpdate/games.json 中 demo 游戏的定义对应；
+    ///      新增子游戏时为它的资源打各自的 label，实现按游戏下载）
     /// 2. 构建 Addressables（New Build → Packed Mode）
     /// 3. 拷贝构建产物到 Python 服务器目录
     ///    ServerData/[BuildTarget] → HybridCLRData/ServerOutput/Addressables/[BuildTarget]
@@ -35,13 +37,16 @@ namespace EditorTools
         /// <summary>MainMenu 场景路径</summary>
         private const string MainMenuScenePath = "Assets/AddressableAssets/Scenes/MainMenu.unity";
 
-        /// <summary>DemoCube 的 Addressable 地址</summary>
-        private const string DemoCubeAddress = "DemoCube";
+        /// <summary>DemoCube 的 Addressable 地址（games.json 中 demo 的资源）</summary>
+        private const string DemoCubeAddress = "games/demo/cube";
 
-        /// <summary>MainMenu 的 Addressable 地址</summary>
-        private const string MainMenuAddress = "MainMenu";
+        /// <summary>MainMenu 的 Addressable 地址（games.json 中 demo 的入口场景）</summary>
+        private const string MainMenuAddress = "games/demo/main";
 
-        /// <summary>默认 Group 名称</summary>
+        /// <summary>demo 游戏的资源 label（运行时按此 label 预下载）</summary>
+        private const string DemoLabel = "games/demo";
+
+        /// <summary>默认 Group 名称（生产项目建议每个子游戏独立 Group，模板保持单 Group 演示机制）</summary>
         private const string DefaultGroupName = "Default Local Group";
 
         // ── 服务器输出目录 ────────────────────────────────────────
@@ -162,7 +167,7 @@ namespace EditorTools
         }
 
         /// <summary>
-        /// 标记单个资源为 Addressable。
+        /// 标记单个资源为 Addressable，并打上其所属游戏的 label。
         /// </summary>
         private static void MarkAsset(AddressableAssetSettings settings,
             AddressableAssetGroup group, string assetPath, string address)
@@ -176,7 +181,13 @@ namespace EditorTools
 
             var entry = settings.CreateOrMoveEntry(guid, group, false);
             entry.address = address;
-            Debug.Log($"标记 Addressable: {address} → {assetPath}");
+            if (!settings.GetLabels().Contains(DemoLabel))
+            {
+                settings.AddLabel(DemoLabel);
+            }
+
+            entry.SetLabel(DemoLabel, true);
+            Debug.Log($"标记 Addressable: {address} → {assetPath} (label: {DemoLabel})");
         }
 
         /// <summary>

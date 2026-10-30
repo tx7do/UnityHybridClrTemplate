@@ -5,8 +5,8 @@
 同时 serve 代码热更新和资源热更新(Addressables)的内容：
 
   http://127.0.0.1:8080/
-    ├── manifest.json          ← 代码热更版本清单
-    ├── HotUpdate.dll          ← 代码热更 DLL
+    ├── games.json             ← 游戏注册表（每个子游戏的版本/依赖/入口）
+    ├── HotUpdate.dll          ← 代码热更 DLL（多游戏时可有多个，根目录平铺）
     └── Addressables/
         └── [BuildTarget]/     ← Addressables 远程构建产物
             ├── catalog_*.json

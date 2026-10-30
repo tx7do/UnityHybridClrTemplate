@@ -16,14 +16,16 @@ MonoBehaviour:
   m_GUID: 542ff6ec679935242b4c45ef1d6ce7dd
   m_SerializeEntries:
   - m_GUID: e6575b1b8ba334de4a160be9e284f79c
-    m_Address: MainMenu
+    m_Address: games/demo/main
     m_ReadOnly: 0
-    m_SerializedLabels: []
+    m_SerializedLabels:
+    - games/demo
     FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: eb60ca9f5b4e7410f8e2d1c9a1d64cf6
-    m_Address: DemoCube
+    m_Address: games/demo/cube
     m_ReadOnly: 0
-    m_SerializedLabels: []
+    m_SerializedLabels:
+    - games/demo
     FlaggedDuringContentUpdateRestriction: 0
   m_ReadOnly: 0
   m_Settings: {fileID: 11400000, guid: f4cd695c5f1727a4994b58dee21c5848, type: 2}

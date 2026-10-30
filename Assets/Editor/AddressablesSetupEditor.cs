@@ -1,5 +1,6 @@
 using System;
 using System.IO;
+using Main.Config;
 using UnityEditor;
 using UnityEditor.AddressableAssets;
 using UnityEditor.AddressableAssets.Settings;
@@ -24,9 +25,10 @@ namespace EditorTools
     {
         private const string MenuRoot = "HotUpdate/Addressables/";
 
-        /// <summary>远程加载根 URL（与 serve_hotupdate.py 配合）。
+        /// <summary>远程加载根 URL：服务器地址取自 HotUpdateConfig（与代码热更同源，切 CDN 只改一处）。
         /// 用 127.0.0.1 而非 localhost，避免解析到 IPv6 或被系统代理接管</summary>
-        private const string RemoteLoadPathValue = "http://127.0.0.1:8080/Addressables/[BuildTarget]";
+        private static string RemoteLoadPathValue =>
+            $"{HotUpdateConfig.Load().ServerBaseUrl}/Addressables/[BuildTarget]";
 
         /// <summary>远程构建输出目录</summary>
         private const string RemoteBuildPathValue = "ServerData/[BuildTarget]";
